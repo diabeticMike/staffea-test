@@ -20,12 +20,10 @@ func (mw *Middleware) Authorization() gin.HandlerFunc {
 	return func(c *gin.Context) {
 		tokenString := strings.TrimPrefix(c.GetHeader("token"), "Bearer ")
 		token, err := jwt.Parse(tokenString, func(token *jwt.Token) (interface{}, error) {
-			// Don't forget to validate the alg is what you expect:
 			if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 				return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 			}
 
-			// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
 			return []byte(entity.Secret.String()), nil
 		})
 		if err != nil {
@@ -36,12 +34,10 @@ func (mw *Middleware) Authorization() gin.HandlerFunc {
 
 			refreshString := strings.TrimPrefix(c.GetHeader("refresh"), "Bearer ")
 			refresh, err := jwt.Parse(refreshString, func(token *jwt.Token) (interface{}, error) {
-				// Don't forget to validate the alg is what you expect:
 				if _, ok := token.Method.(*jwt.SigningMethodHMAC); !ok {
 					return nil, fmt.Errorf("Unexpected signing method: %v", token.Header["alg"])
 				}
 
-				// hmacSampleSecret is a []byte containing your secret, e.g. []byte("my_secret_key")
 				return []byte(entity.Secret.String()), nil
 			})
 			if err != nil {
@@ -68,8 +64,14 @@ func (mw *Middleware) Authorization() gin.HandlerFunc {
 				c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 				return
 			}
-			c.Header("token", "Bearer "+newToken)
-			c.Header("refresh", "Bearer "+newRefreshToken)
+
+			c.JSON(http.StatusOK, &entity.UserAuthResponse{
+				Login:        "",
+				RefreshToken: newToken,
+				AccessToken:  newRefreshToken,
+				Provider:     1,
+				Locale:       "fr_FR",
+			})
 			return
 		}
 

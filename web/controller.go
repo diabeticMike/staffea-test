@@ -2,7 +2,6 @@ package web
 
 import (
 	"errors"
-	"fmt"
 	jwt "github.com/dgrijalva/jwt-go"
 	"github.com/gin-gonic/gin"
 	"github.com/google/uuid"
@@ -79,10 +78,14 @@ func (ctl *Controller) HandleAuthentication(c *gin.Context) {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.Header("token", "Bearer "+tokenString)
-	c.Header("refresh", "Bearer "+refreshString)
 
-	fmt.Println("OK")
+	c.JSON(http.StatusOK, &entity.UserAuthResponse{
+		Login:        user.Login,
+		RefreshToken: "Bearer " + refreshString,
+		AccessToken:  "Bearer " + tokenString,
+		Provider:     1,
+		Locale:       "fr_FR",
+	})
 }
 
 func GenerateNewTokens(userID string) (string, string, error) {

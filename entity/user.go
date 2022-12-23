@@ -7,8 +7,8 @@ import (
 )
 
 type User struct {
-	ID       uuid.UUID `gorm:"type:uuid;primaryKey"`
-	Login    string    `gorm:"type:string;column:login" json:"login"`
+	ID       uuid.UUID `gorm:"type:uuid;primaryKey;unique"`
+	Login    string    `gorm:"type:string;column:login;unique" json:"login"`
 	Password string    `gorm:"type:string;column:password" json:"password"`
 }
 
@@ -18,8 +18,16 @@ var (
 
 type UserAuthRequest struct {
 	ID       uuid.UUID `json:"uuid"`
-	Login    string    `json:"login" validate:"required"`
-	Password string    `json:"password" validate:"min=8,max=255"`
+	Login    string    `json:"login"`
+	Password string    `json:"password"`
+}
+
+type UserAuthResponse struct {
+	Login        string `json:"login"`
+	RefreshToken string `json:"refreshToken"`
+	AccessToken  string `json:"accessToken"`
+	Provider     int64  `json:"provider"`
+	Locale       string `json:"locale"`
 }
 
 func (u UserAuthRequest) Validate() error {

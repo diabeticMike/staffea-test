@@ -13,8 +13,10 @@ func main() {
 	if err != nil {
 		log.Fatalln(err)
 	}
+
 	// temporary migrations and seeds
 	db.AutoMigrate(&entity.User{}, &entity.Invite{})
+	db.Exec("truncate table users")
 	db.Create(entity.Invite{ID: uuid.MustParse("524d832f-2624-4c4a-957a-4e48112d3df3")})
 	sqlDB, err := db.DB()
 	if err != nil {
